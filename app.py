@@ -1,63 +1,44 @@
+import plotly_express as px
 import dash
-import dash_core_components as dcc
 import dash_html_components as html
-import plotly.graph_objs as go
+import dash_core_components as dcc
+from dash.dependencies import Input, Output
 
-########### Define your variables
-beers=['Chesapeake Stout', 'Snake Dog IPA', 'Imperial Porter', 'Double Dog IPA']
-ibu_values=[35, 60, 85, 75]
-abv_values=[5.4, 7.1, 9.2, 4.3]
-color1='lightblue'
-color2='darkgreen'
-mytitle='Beer Comparison'
-tabtitle='beer!'
-myheading='Flying Dog Beers'
-label1='IBU'
-label2='ABV'
-githublink='https://github.com/austinlasseter/flying-dog-beers'
-sourceurl='https://www.flyingdog.com/beers/'
+from Portfolio import Portfolio
 
-########### Set up the chart
-bitterness = go.Bar(
-    x=beers,
-    y=ibu_values,
-    name=label1,
-    marker={'color':color1}
-)
-alcohol = go.Bar(
-    x=beers,
-    y=abv_values,
-    name=label2,
-    marker={'color':color2}
-)
+fidelity_holdings_path = '/Users/daniel.ladd/Documents/data/Portfolio_Position_Apr-04-2020.csv'
+etf_holdings_paths = {
+    "SPY":'/Users/daniel.ladd/Documents/data/holdings-daily-us-en-spy.xlsx',
+    "MTUM":'/Users/daniel.ladd/Documents/data/MTUM_holdings.csv',
+    "USMV":'/Users/daniel.ladd/Documents/data/USMV_holdings.csv',
+    } 
 
-beer_data = [bitterness, alcohol]
-beer_layout = go.Layout(
-    barmode='group',
-    title = mytitle
+quandl_api_key = '-zM7wKFJ3BGagyXxkPwX'
+date = '2019-12-31'
+
+my_ptf = Portfolio('my_ptf',quandl_api_key)
+my_ptf.add_holdings(fidelity_holdings_path,"Fidelity Individual")
+my_ptf.clean_tickers()
+my_ptf.explode_etfs(etf_holdings_paths)
+
+my_ptf.get_fundamentals(date,'MRT')
+my_ptf.get_metadata()
+my_ptf.merge_holdings_fundamentals()
+
+fig = px.sunburst(my_ptf.df, path=['sector','industry','ticker'], values='weight',
+                 color='weight',color_continuous_scale='RdBu',color_continuous_midpoint=my_ptf.df.weight.mean(),maxdepth=2)
+app = dash.Dash(
+    __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 )
 
-beer_fig = go.Figure(data=beer_data, layout=beer_layout)
-
-
-########### Initiate the app
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
-app.title=tabtitle
-
-########### Set up the layout
-app.layout = html.Div(children=[
-    html.H1(myheading),
-    dcc.Graph(
-        id='flyingdog',
-        figure=beer_fig
-    ),
-    html.A('Code on Github', href=githublink),
-    html.Br(),
-    html.A('Data Source', href=sourceurl),
+app.layout = html.Div(
+    [
+        html.H1("Demo: Plotly Express in Dash with Tips Dataset"),
+        html.Div(style={"width": "25%", "float": "left"},
+        ),
+        dcc.Graph(figure=fig),
     ]
 )
 
-if __name__ == '__main__':
-    app.run_server()
+
+app.run_server(debug=True)
