@@ -6,11 +6,11 @@ from dash.dependencies import Input, Output
 
 from Portfolio import Portfolio
 
-fidelity_holdings_path = '/Users/daniel.ladd/Documents/data/Portfolio_Position_Apr-04-2020.csv'
+fidelity_holdings_path = 'Portfolio_Position_Apr-04-2020.csv'
 etf_holdings_paths = {
-    "SPY":'/Users/daniel.ladd/Documents/data/holdings-daily-us-en-spy.xlsx',
-    "MTUM":'/Users/daniel.ladd/Documents/data/MTUM_holdings.csv',
-    "USMV":'/Users/daniel.ladd/Documents/data/USMV_holdings.csv',
+    "SPY":'holdings-daily-us-en-spy.xlsx',
+    "MTUM":'MTUM_holdings.csv',
+    "USMV":'USMV_holdings.csv',
     } 
 
 quandl_api_key = '-zM7wKFJ3BGagyXxkPwX'
